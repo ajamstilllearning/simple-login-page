@@ -64,7 +64,7 @@ if (isset($_SESSION['id_user'])) {
             </div>
 
             <div class="captcha-container">
-                <div class="g-recaptcha" data-sitekey="6LdKHOYtAAAAAHcHDQpIdECgobPOl-XZ_y01FECk"></div>
+                <div class="g-recaptcha" data-sitekey="6LfvHeYtAAAAAGYCgd71-YZQIpFc5B5sCASkKiib"></div>
             </div>
 
             <button type="submit" name="submit">Login</button>
