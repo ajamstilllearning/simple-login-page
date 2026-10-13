@@ -79,7 +79,7 @@ session_start();
             <div class="error-msg" id="email-error">Format email tidak valid</div>
 
             <div class="captcha-container">
-                <div class="g-recaptcha" data-sitekey="6LfvHeYtAAAAAGYCgd71-YZQIpFc5B5sCASkKiib"></div>
+                <div class="g-recaptcha" data-sitekey="6LebdewtAAAAANPqSfHWK7h1ZxAhh6-SzuZg_PuB"></div>
             </div>
 
             <button type="submit" name="submit">Daftar</button>

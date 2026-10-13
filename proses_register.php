@@ -17,7 +17,7 @@ $nama     = trim(mysqli_real_escape_string($koneksi, $_POST['nama']));
 $email    = trim(mysqli_real_escape_string($koneksi, $_POST['email']));
 
 // Validasi ReCAPTCHA
-$recaptcha_secret = "6LfvHeYtAAAAAFZE_iylDQOjzES7xKg5GYdCe-w0";
+$recaptcha_secret = "6LebdewtAAAAAKaRXnONKh02yJ2rq6ftpfmQt22o";
 $recaptcha_response = isset($_POST['g-recaptcha-response']) ? $_POST['g-recaptcha-response'] : '';
 
 if (empty($recaptcha_response)) {
