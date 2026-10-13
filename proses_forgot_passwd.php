@@ -12,8 +12,25 @@ $username      = trim(mysqli_real_escape_string($koneksi, $_POST['username']));
 $email         = trim(mysqli_real_escape_string($koneksi, $_POST['email']));
 $password_baru = trim($_POST['password_baru']);
 
+// Simpan input yang valid di session untuk sticky form
+$_SESSION['forgot_data'] = [
+    'username' => $username,
+    'email' => $email
+];
+
 if (empty($username) || empty($email) || empty($password_baru)) {
     $_SESSION['pesan'] = "Semua field wajib diisi!";
+    $_SESSION['tipe']  = "error";
+    if (empty($username)) unset($_SESSION['forgot_data']['username']);
+    if (empty($email)) unset($_SESSION['forgot_data']['email']);
+    header("Location: forgot_password.php");
+    exit;
+}
+
+// Validasi password dengan regex yang sama seperti register
+$password_regex = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/";
+if (!preg_match($password_regex, $password_baru)) {
+    $_SESSION['pesan'] = "Password harus minimal 6 karakter, mengandung huruf, angka, karakter khusus (@$!%*?&), dan 1 huruf kapital!";
     $_SESSION['tipe']  = "error";
     header("Location: forgot_password.php");
     exit;
@@ -36,6 +53,7 @@ if (mysqli_num_rows($result) === 1) {
     if (mysqli_stmt_execute($stmt_update)) {
         $_SESSION['pesan'] = "Password berhasil direset! Silakan login dengan password baru Anda.";
         $_SESSION['tipe']  = "sukses";
+        unset($_SESSION['forgot_data']);
         mysqli_stmt_close($stmt_update);
         mysqli_stmt_close($stmt);
         mysqli_close($koneksi);

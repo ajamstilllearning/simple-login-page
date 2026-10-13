@@ -16,6 +16,15 @@ $password_confirm = trim($_POST['password_confirm']);
 $nama     = trim(mysqli_real_escape_string($koneksi, $_POST['nama']));
 $email    = trim(mysqli_real_escape_string($koneksi, $_POST['email']));
 
+// Simpan input yang valid di session untuk sticky form
+$_SESSION['form_data'] = [
+    'username' => $username,
+    'password' => $password,
+    'password_confirm' => $password_confirm,
+    'nama' => $nama,
+    'email' => $email
+];
+
 // Validasi ReCAPTCHA
 $recaptcha_secret = "6LebdewtAAAAAKaRXnONKh02yJ2rq6ftpfmQt22o";
 $recaptcha_response = isset($_POST['g-recaptcha-response']) ? $_POST['g-recaptcha-response'] : '';
@@ -66,6 +75,7 @@ if (empty($username) || empty($password) || empty($password_confirm) || empty($n
 if (strlen($username) < 3) {
     $_SESSION['pesan'] = "Username minimal 3 karakter!";
     $_SESSION['tipe']  = "error";
+    unset($_SESSION['form_data']['username']);
     header("Location: register.php");
     exit;
 }
@@ -75,6 +85,8 @@ $password_regex = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*
 if (!preg_match($password_regex, $password)) {
     $_SESSION['pesan'] = "Password harus minimal 6 karakter, mengandung huruf, angka, karakter khusus (@$!%*?&), dan 1 huruf kapital!";
     $_SESSION['tipe']  = "error";
+    unset($_SESSION['form_data']['password']);
+    unset($_SESSION['form_data']['password_confirm']);
     header("Location: register.php");
     exit;
 }
@@ -83,6 +95,8 @@ if (!preg_match($password_regex, $password)) {
 if ($password !== $password_confirm) {
     $_SESSION['pesan'] = "Password konfirmasi tidak cocok!";
     $_SESSION['tipe']  = "error";
+    unset($_SESSION['form_data']['password']);
+    unset($_SESSION['form_data']['password_confirm']);
     header("Location: register.php");
     exit;
 }
@@ -91,6 +105,7 @@ if ($password !== $password_confirm) {
 if (strlen($nama) < 1) {
     $_SESSION['pesan'] = "Nama minimal 1 huruf!";
     $_SESSION['tipe']  = "error";
+    unset($_SESSION['form_data']['nama']);
     header("Location: register.php");
     exit;
 }
@@ -99,6 +114,7 @@ if (strlen($nama) < 1) {
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $_SESSION['pesan'] = "Format email tidak valid!";
     $_SESSION['tipe']  = "error";
+    unset($_SESSION['form_data']['email']);
     header("Location: register.php");
     exit;
 }
@@ -112,6 +128,7 @@ $result_username = mysqli_stmt_get_result($cek_username);
 if (mysqli_num_rows($result_username) > 0) {
     $_SESSION['pesan'] = "Username sudah terdaftar!";
     $_SESSION['tipe']  = "error";
+    unset($_SESSION['form_data']['username']);
     mysqli_stmt_close($cek_username);
     header("Location: register.php");
     exit;
@@ -127,6 +144,7 @@ $result_email = mysqli_stmt_get_result($cek_email);
 if (mysqli_num_rows($result_email) > 0) {
     $_SESSION['pesan'] = "Email sudah terdaftar!";
     $_SESSION['tipe']  = "error";
+    unset($_SESSION['form_data']['email']);
     mysqli_stmt_close($cek_email);
     header("Location: register.php");
     exit;
@@ -144,6 +162,7 @@ mysqli_stmt_bind_param($stmt, "ssss", $username, $password_hash, $nama, $email);
 if (mysqli_stmt_execute($stmt)) {
     $_SESSION['pesan'] = "Registrasi berhasil! Silakan login.";
     $_SESSION['tipe']  = "sukses";
+    unset($_SESSION['form_data']);
     mysqli_stmt_close($stmt);
     mysqli_close($koneksi);
     header("Location: register.php");
