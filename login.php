@@ -9,11 +9,22 @@ if (isset($_SESSION['id_user'])) {
 }
 
 // Hapus form data session saat halaman dimuat untuk keamanan
+if (!isset($_SESSION['form_error']) && isset($_SESSION['login_password'])) {
+    unset($_SESSION['login_password']);
+}
+if (!isset($_SESSION['form_error']) && isset($_SESSION['login_username'])) {
+    unset($_SESSION['login_username']);
+}
 if (isset($_SESSION['form_data'])) {
     unset($_SESSION['form_data']);
 }
 if (isset($_SESSION['forgot_data'])) {
     unset($_SESSION['forgot_data']);
+}
+
+// Hapus flag form_error setelah dicek
+if (isset($_SESSION['form_error'])) {
+    unset($_SESSION['form_error']);
 }
 ?>
 <!DOCTYPE html>
@@ -327,11 +338,13 @@ if (isset($_SESSION['forgot_data'])) {
 
         <form action="proses_login.php" method="POST" id="loginForm" onsubmit="return validateForm()">
             <label>Username</label>
-            <input type="text" name="username" required autofocus>
+            <input type="text" name="username" required autofocus
+                   value="<?= isset($_SESSION['login_username']) ? htmlspecialchars($_SESSION['login_username']) : '' ?>">
 
             <label>Password</label>
             <div class="input-group">
-                <input type="password" name="password" id="password" required class="with-toggle">
+                <input type="password" name="password" id="password" required class="with-toggle"
+                       value="<?= isset($_SESSION['login_password']) ? htmlspecialchars($_SESSION['login_password']) : '' ?>">
                 <span class="toggle-password" onclick="togglePassword('password', this)">👁️</span>
             </div>
 

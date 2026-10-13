@@ -2,9 +2,22 @@
 // register.php
 session_start();
 
-// Hapus form data session saat halaman dimuat untuk keamanan
-if (isset($_SESSION['form_data'])) {
+// Hapus form data session hanya jika datang dari halaman lain (bukan dari error submit yang sama)
+if (!isset($_SESSION['form_error']) && isset($_SESSION['form_data'])) {
     unset($_SESSION['form_data']);
+}
+
+// Hapus login data saat masuk ke register
+if (isset($_SESSION['login_password'])) {
+    unset($_SESSION['login_password']);
+}
+if (isset($_SESSION['login_username'])) {
+    unset($_SESSION['login_username']);
+}
+
+// Hapus flag form_error setelah dicek
+if (isset($_SESSION['form_error'])) {
+    unset($_SESSION['form_error']);
 }
 ?>
 <!DOCTYPE html>

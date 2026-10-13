@@ -9,6 +9,17 @@ if (isset($_SESSION['forgot_data'])) {
 if (isset($_SESSION['form_data'])) {
     unset($_SESSION['form_data']);
 }
+if (isset($_SESSION['form_error'])) {
+    unset($_SESSION['form_error']);
+}
+
+// Hapus login data saat masuk ke forgot password
+if (isset($_SESSION['login_password'])) {
+    unset($_SESSION['login_password']);
+}
+if (isset($_SESSION['login_username'])) {
+    unset($_SESSION['login_username']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="id">

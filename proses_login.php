@@ -11,6 +11,10 @@ if (!isset($_POST['submit'])) {
 $username = trim(mysqli_real_escape_string($koneksi, $_POST['username']));
 $password = trim($_POST['password']);
 
+// Simpan username dan password di session untuk sticky form saat error
+$_SESSION['login_username'] = $username;
+$_SESSION['login_password'] = $password;
+
 // Validasi ReCAPTCHA
 $recaptcha_secret = "6LebdewtAAAAAKaRXnONKh02yJ2rq6ftpfmQt22o";
 $recaptcha_response = isset($_POST['g-recaptcha-response']) ? $_POST['g-recaptcha-response'] : '';
@@ -18,6 +22,7 @@ $recaptcha_response = isset($_POST['g-recaptcha-response']) ? $_POST['g-recaptch
 if (empty($recaptcha_response)) {
     $_SESSION['pesan'] = "Harap lengkapi reCAPTCHA!";
     $_SESSION['tipe']  = "error";
+    $_SESSION['form_error'] = true;
     header("Location: login.php");
     exit;
 }
@@ -45,6 +50,7 @@ $recaptcha_json = json_decode($recaptcha_result);
 if (!$recaptcha_json->success) {
     $_SESSION['pesan'] = "Verifikasi reCAPTCHA gagal!";
     $_SESSION['tipe']  = "error";
+    $_SESSION['form_error'] = true;
     header("Location: login.php");
     exit;
 }
@@ -52,6 +58,9 @@ if (!$recaptcha_json->success) {
 if (empty($username) || empty($password)) {
     $_SESSION['pesan'] = "Username dan Password wajib diisi!";
     $_SESSION['tipe']  = "error";
+    unset($_SESSION['login_username']);
+    unset($_SESSION['login_password']);
+    $_SESSION['form_error'] = true;
     header("Location: login.php");
     exit;
 }
@@ -72,6 +81,9 @@ if (mysqli_num_rows($result) === 1) {
         $_SESSION['id_user']  = $user['id_user'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['nama']     = $user['nama'];
+        unset($_SESSION['login_username']);
+        unset($_SESSION['login_password']);
+        unset($_SESSION['form_error']);
 
         mysqli_stmt_close($stmt);
         mysqli_close($koneksi);
@@ -81,10 +93,12 @@ if (mysqli_num_rows($result) === 1) {
     } else {
         $_SESSION['pesan'] = "Username atau password yang Anda masukkan salah!";
         $_SESSION['tipe']  = "error";
+        $_SESSION['form_error'] = true;
     }
 } else {
     $_SESSION['pesan'] = "Username atau password yang Anda masukkan salah!";
     $_SESSION['tipe']  = "error";
+    $_SESSION['form_error'] = true;
 }
 
 mysqli_stmt_close($stmt);
