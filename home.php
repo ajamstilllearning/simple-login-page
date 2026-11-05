@@ -2,15 +2,11 @@
 // home.php
 session_start();
 
-// Proteksi halaman: hanya bisa diakses jika sudah login
-// (Anda perlu membuat login.php yang menset $_SESSION['id_user'] agar file ini bisa diakses)
 if (!isset($_SESSION['id_user'])) {
-    // Jika belum login, tendang ke halaman login (buat file login.php nanti)
     header("Location: login.php");
     exit;
 }
 
-// Hapus form data session untuk keamanan
 if (isset($_SESSION['form_data'])) {
     unset($_SESSION['form_data']);
 }
@@ -21,10 +17,10 @@ if (isset($_SESSION['forgot_data'])) {
 require_once "koneksi.php";
 
 $id_user = $_SESSION['id_user'];
-$query   = mysqli_query($koneksi, "SELECT * FROM users WHERE id_user='$id_user'");
+// DIUBAH: tabel 'users' menjadi 'user'
+$query   = mysqli_query($koneksi, "SELECT * FROM user WHERE id_user='$id_user'");
 $user    = mysqli_fetch_assoc($query);
 
-// Hapus session untuk memaksa login ulang pada akses berikutnya
 session_unset();
 session_destroy();
 ?>
@@ -43,7 +39,6 @@ session_destroy();
             overflow-x: hidden;
         }
 
-        /* Animated gradient background */
         body::before {
             content: '';
             position: fixed;
@@ -60,7 +55,6 @@ session_destroy();
             z-index: 0;
         }
 
-        /* Mouse follower */
         .mouse-follower {
             position: fixed;
             width: 300px;
@@ -164,101 +158,34 @@ session_destroy();
             background: rgba(138, 43, 226, 0.1);
         }
 
-        /* Responsive Design */
         @media (max-width: 768px) {
-            .navbar {
-                padding: 15px 20px;
-            }
-
-            .navbar span {
-                font-size: 20px;
-            }
-
-            .navbar a {
-                padding: 8px 15px;
-                font-size: 14px;
-            }
-
-            .container {
-                width: 90%;
-                padding: 30px 20px;
-                margin: 30px auto;
-            }
-
-            h2 {
-                font-size: 24px;
-            }
-
-            p {
-                font-size: 15px;
-            }
-
-            td {
-                padding: 12px;
-                font-size: 14px;
-            }
-
-            td:first-child {
-                width: 150px;
-            }
+            .navbar { padding: 15px 20px; }
+            .navbar span { font-size: 20px; }
+            .navbar a { padding: 8px 15px; font-size: 14px; }
+            .container { width: 90%; padding: 30px 20px; margin: 30px auto; }
+            h2 { font-size: 24px; }
+            p { font-size: 15px; }
+            td { padding: 12px; font-size: 14px; }
+            td:first-child { width: 150px; }
         }
 
         @media (max-width: 480px) {
-            .navbar {
-                padding: 12px 15px;
-                flex-direction: column;
-                gap: 15px;
-            }
-
-            .navbar span {
-                font-size: 18px;
-            }
-
-            .navbar a {
-                width: 100%;
-                text-align: center;
-                padding: 10px;
-            }
-
-            .container {
-                width: 95%;
-                padding: 25px 15px;
-                margin: 20px auto;
-            }
-
-            h2 {
-                font-size: 22px;
-            }
-
-            p {
-                font-size: 14px;
-            }
-
-            table {
-                font-size: 13px;
-            }
-
-            td {
-                padding: 10px;
-                font-size: 13px;
-            }
-
-            td:first-child {
-                width: 120px;
-                font-size: 12px;
-            }
-
-            .mouse-follower {
-                width: 200px;
-                height: 200px;
-            }
+            .navbar { padding: 12px 15px; flex-direction: column; gap: 15px; }
+            .navbar span { font-size: 18px; }
+            .navbar a { width: 100%; text-align: center; padding: 10px; }
+            .container { width: 95%; padding: 25px 15px; margin: 20px auto; }
+            h2 { font-size: 22px; }
+            p { font-size: 14px; }
+            table { font-size: 13px; }
+            td { padding: 10px; font-size: 13px; }
+            td:first-child { width: 120px; font-size: 12px; }
+            .mouse-follower { width: 200px; height: 200px; }
         }
     </style>
 </head>
 <body>
     <div class="navbar">
         <span>Dashboard Aplikasi</span>
-        <!-- Pastikan Anda membuat file logout.php -->
         <a href="logout.php">Logout</a>
     </div>
 
@@ -277,7 +204,6 @@ session_destroy();
     <div class="mouse-follower" id="mouseFollower"></div>
 
     <script>
-        // Mouse follower and interactive gradient
         const mouseFollower = document.getElementById('mouseFollower');
         const body = document.body;
 
@@ -285,18 +211,15 @@ session_destroy();
             const x = e.clientX;
             const y = e.clientY;
 
-            // Move mouse follower
             mouseFollower.style.left = x + 'px';
             mouseFollower.style.top = y + 'px';
 
-            // Update gradient position
             const xPercent = (x / window.innerWidth) * 100;
             const yPercent = (y / window.innerHeight) * 100;
             body.style.setProperty('--mouse-x', xPercent + '%');
             body.style.setProperty('--mouse-y', yPercent + '%');
         });
 
-        // Hide mouse follower when mouse leaves window
         document.addEventListener('mouseleave', () => {
             mouseFollower.style.opacity = '0';
         });

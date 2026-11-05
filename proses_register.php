@@ -3,20 +3,17 @@
 session_start();
 require_once "koneksi.php";
 
-// Cek apakah form disubmit
 if (!isset($_POST['submit'])) {
     header("Location: register.php");
     exit;
 }
 
-// Ambil & bersihkan input
 $username = trim(mysqli_real_escape_string($koneksi, $_POST['username']));
 $password = trim($_POST['password']);
 $password_confirm = trim($_POST['password_confirm']);
 $nama     = trim(mysqli_real_escape_string($koneksi, $_POST['nama']));
 $email    = trim(mysqli_real_escape_string($koneksi, $_POST['email']));
 
-// Simpan input yang valid di session untuk sticky form
 $_SESSION['form_data'] = [
     'username' => $username,
     'password' => $password,
@@ -25,10 +22,8 @@ $_SESSION['form_data'] = [
     'email' => $email
 ];
 
-// Flag untuk menandai bahwa error terjadi di submit yang sama
 $_SESSION['form_error'] = true;
 
-// Validasi ReCAPTCHA
 $recaptcha_secret = "6LebdewtAAAAAKaRXnONKh02yJ2rq6ftpfmQt22o";
 $recaptcha_response = isset($_POST['g-recaptcha-response']) ? $_POST['g-recaptcha-response'] : '';
 
@@ -40,7 +35,6 @@ if (empty($recaptcha_response)) {
     exit;
 }
 
-// Verifikasi ReCAPTCHA dengan Google
 $recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
 $recaptcha_data = [
     'secret' => $recaptcha_secret,
@@ -68,7 +62,6 @@ if (!$recaptcha_json->success) {
     exit;
 }
 
-// Validasi sederhana
 if (empty($username) || empty($password) || empty($password_confirm) || empty($nama) || empty($email)) {
     $_SESSION['pesan'] = "Semua field wajib diisi!";
     $_SESSION['tipe']  = "error";
@@ -76,19 +69,15 @@ if (empty($username) || empty($password) || empty($password_confirm) || empty($n
     exit;
 }
 
-// Validasi username minimal 3 karakter
 if (strlen($username) < 3) {
     $_SESSION['pesan'] = "Username minimal 3 karakter!";
     $_SESSION['tipe']  = "error";
-    if (isset($_SESSION['form_data'])) {
-        unset($_SESSION['form_data']['username']);
-    }
+    if (isset($_SESSION['form_data'])) unset($_SESSION['form_data']['username']);
     $_SESSION['form_error'] = true;
     header("Location: register.php");
     exit;
 }
 
-// Validasi password minimal 6 karakter, mengandung huruf, angka, karakter khusus, dan 1 huruf kapital
 $password_regex = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/";
 if (!preg_match($password_regex, $password)) {
     $_SESSION['pesan'] = "Password harus minimal 6 karakter, mengandung huruf, angka, karakter khusus (@$!%*?&), dan 1 huruf kapital!";
@@ -102,7 +91,6 @@ if (!preg_match($password_regex, $password)) {
     exit;
 }
 
-// Validasi password konfirmasi
 if ($password !== $password_confirm) {
     $_SESSION['pesan'] = "Password konfirmasi tidak cocok!";
     $_SESSION['tipe']  = "error";
@@ -115,32 +103,26 @@ if ($password !== $password_confirm) {
     exit;
 }
 
-// Validasi nama minimal 1 huruf
 if (strlen($nama) < 1) {
     $_SESSION['pesan'] = "Nama minimal 1 huruf!";
     $_SESSION['tipe']  = "error";
-    if (isset($_SESSION['form_data'])) {
-        unset($_SESSION['form_data']['nama']);
-    }
+    if (isset($_SESSION['form_data'])) unset($_SESSION['form_data']['nama']);
     $_SESSION['form_error'] = true;
     header("Location: register.php");
     exit;
 }
 
-// Validasi email format
 if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
     $_SESSION['pesan'] = "Format email tidak valid!";
     $_SESSION['tipe']  = "error";
-    if (isset($_SESSION['form_data'])) {
-        unset($_SESSION['form_data']['email']);
-    }
+    if (isset($_SESSION['form_data'])) unset($_SESSION['form_data']['email']);
     $_SESSION['form_error'] = true;
     header("Location: register.php");
     exit;
 }
 
-// Cek username sudah terdaftar atau belum
-$cek_username = mysqli_prepare($koneksi, "SELECT id_user FROM users WHERE username = ? LIMIT 1");
+// DIUBAH: tabel 'users' menjadi 'user'
+$cek_username = mysqli_prepare($koneksi, "SELECT id_user FROM user WHERE username = ? LIMIT 1");
 mysqli_stmt_bind_param($cek_username, "s", $username);
 mysqli_stmt_execute($cek_username);
 $result_username = mysqli_stmt_get_result($cek_username);
@@ -148,9 +130,7 @@ $result_username = mysqli_stmt_get_result($cek_username);
 if (mysqli_num_rows($result_username) > 0) {
     $_SESSION['pesan'] = "Username sudah terdaftar!";
     $_SESSION['tipe']  = "error";
-    if (isset($_SESSION['form_data'])) {
-        unset($_SESSION['form_data']['username']);
-    }
+    if (isset($_SESSION['form_data'])) unset($_SESSION['form_data']['username']);
     $_SESSION['form_error'] = true;
     mysqli_stmt_close($cek_username);
     header("Location: register.php");
@@ -158,8 +138,8 @@ if (mysqli_num_rows($result_username) > 0) {
 }
 mysqli_stmt_close($cek_username);
 
-// Cek email sudah terdaftar atau belum
-$cek_email = mysqli_prepare($koneksi, "SELECT id_user FROM users WHERE email = ? LIMIT 1");
+// DIUBAH: tabel 'users' menjadi 'user'
+$cek_email = mysqli_prepare($koneksi, "SELECT id_user FROM user WHERE email = ? LIMIT 1");
 mysqli_stmt_bind_param($cek_email, "s", $email);
 mysqli_stmt_execute($cek_email);
 $result_email = mysqli_stmt_get_result($cek_email);
@@ -167,9 +147,7 @@ $result_email = mysqli_stmt_get_result($cek_email);
 if (mysqli_num_rows($result_email) > 0) {
     $_SESSION['pesan'] = "Email sudah terdaftar!";
     $_SESSION['tipe']  = "error";
-    if (isset($_SESSION['form_data'])) {
-        unset($_SESSION['form_data']['email']);
-    }
+    if (isset($_SESSION['form_data'])) unset($_SESSION['form_data']['email']);
     $_SESSION['form_error'] = true;
     mysqli_stmt_close($cek_email);
     header("Location: register.php");
@@ -177,12 +155,11 @@ if (mysqli_num_rows($result_email) > 0) {
 }
 mysqli_stmt_close($cek_email);
 
-// Hash password (PENTING: password tidak disimpan sebagai teks biasa)
 $password_hash = password_hash($password, PASSWORD_DEFAULT);
 
-// Simpan ke database (prepared statement)
+// DIUBAH: tabel 'users' menjadi 'user'
 $stmt = mysqli_prepare($koneksi,
-    "INSERT INTO users (username, password, nama, email) VALUES (?, ?, ?, ?)");
+    "INSERT INTO user (username, password, nama, email) VALUES (?, ?, ?, ?)");
 mysqli_stmt_bind_param($stmt, "ssss", $username, $password_hash, $nama, $email);
 
 if (mysqli_stmt_execute($stmt)) {

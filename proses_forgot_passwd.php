@@ -1,5 +1,5 @@
 <?php
-// proses_lupa_password.php
+// proses_forgot_passwd.php
 session_start();
 require_once "koneksi.php";
 
@@ -12,7 +12,6 @@ $username      = trim(mysqli_real_escape_string($koneksi, $_POST['username']));
 $email         = trim(mysqli_real_escape_string($koneksi, $_POST['email']));
 $password_baru = trim($_POST['password_baru']);
 
-// Simpan input yang valid di session untuk sticky form
 $_SESSION['forgot_data'] = [
     'username' => $username,
     'email' => $email
@@ -27,7 +26,6 @@ if (empty($username) || empty($email) || empty($password_baru)) {
     exit;
 }
 
-// Validasi password dengan regex yang sama seperti register
 $password_regex = "/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/";
 if (!preg_match($password_regex, $password_baru)) {
     $_SESSION['pesan'] = "Password harus minimal 6 karakter, mengandung huruf, angka, karakter khusus (@$!%*?&), dan 1 huruf kapital!";
@@ -36,18 +34,17 @@ if (!preg_match($password_regex, $password_baru)) {
     exit;
 }
 
-// Cek apakah Username dan Email cocok di database
-$stmt = mysqli_prepare($koneksi, "SELECT id_user FROM users WHERE username = ? AND email = ? LIMIT 1");
+// DIUBAH: tabel 'users' menjadi 'user'
+$stmt = mysqli_prepare($koneksi, "SELECT id_user FROM user WHERE username = ? AND email = ? LIMIT 1");
 mysqli_stmt_bind_param($stmt, "ss", $username, $email);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
 
 if (mysqli_num_rows($result) === 1) {
-    // Jika cocok, hash password baru
     $password_hash = password_hash($password_baru, PASSWORD_DEFAULT);
 
-    // Update password di database
-    $stmt_update = mysqli_prepare($koneksi, "UPDATE users SET password = ? WHERE username = ? AND email = ?");
+    // DIUBAH: tabel 'users' menjadi 'user'
+    $stmt_update = mysqli_prepare($koneksi, "UPDATE user SET password = ? WHERE username = ? AND email = ?");
     mysqli_stmt_bind_param($stmt_update, "sss", $password_hash, $username, $email);
     
     if (mysqli_stmt_execute($stmt_update)) {

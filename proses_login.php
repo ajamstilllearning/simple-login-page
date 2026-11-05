@@ -11,11 +11,9 @@ if (!isset($_POST['submit'])) {
 $username = trim(mysqli_real_escape_string($koneksi, $_POST['username']));
 $password = trim($_POST['password']);
 
-// Simpan username dan password di session untuk sticky form saat error
 $_SESSION['login_username'] = $username;
 $_SESSION['login_password'] = $password;
 
-// Validasi ReCAPTCHA
 $recaptcha_secret = "6LebdewtAAAAAKaRXnONKh02yJ2rq6ftpfmQt22o";
 $recaptcha_response = isset($_POST['g-recaptcha-response']) ? $_POST['g-recaptcha-response'] : '';
 
@@ -27,7 +25,6 @@ if (empty($recaptcha_response)) {
     exit;
 }
 
-// Verifikasi ReCAPTCHA dengan Google
 $recaptcha_url = "https://www.google.com/recaptcha/api/siteverify";
 $recaptcha_data = [
     'secret' => $recaptcha_secret,
@@ -65,8 +62,8 @@ if (empty($username) || empty($password)) {
     exit;
 }
 
-// Ambil data user berdasarkan username (menggunakan prepared statement)
-$stmt = mysqli_prepare($koneksi, "SELECT id_user, username, password, nama FROM users WHERE username = ? LIMIT 1");
+// DIUBAH: tabel 'users' menjadi 'user'
+$stmt = mysqli_prepare($koneksi, "SELECT id_user, username, password, nama FROM user WHERE username = ? LIMIT 1");
 mysqli_stmt_bind_param($stmt, "s", $username);
 mysqli_stmt_execute($stmt);
 $result = mysqli_stmt_get_result($stmt);
@@ -74,10 +71,7 @@ $result = mysqli_stmt_get_result($stmt);
 if (mysqli_num_rows($result) === 1) {
     $user = mysqli_fetch_assoc($result);
 
-    // Verifikasi password
-    // CATATAN: Jika user 'budi123' mencoba login, ini akan GAGAL karena passwordnya masih plain text.
     if (password_verify($password, $user['password'])) {
-        // Password benar, buat session
         $_SESSION['id_user']  = $user['id_user'];
         $_SESSION['username'] = $user['username'];
         $_SESSION['nama']     = $user['nama'];
